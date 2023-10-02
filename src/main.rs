@@ -16,6 +16,13 @@ enum Direction {
 
 
 
+fn pop(stack:&mut Vec<char>) -> char {
+    let result = stack.pop();
+    match result {
+        Some(c) => c,
+        None => '0'
+    }
+}
 
 struct Cursor {
     x: usize,
@@ -63,8 +70,6 @@ impl Cursor {
     }
 
 }
-
-
 
 fn main() {
     let path = Path::new("hello.bf");
@@ -114,13 +119,21 @@ fn main() {
         let cur: char = playing_field[pc.y][pc.x];
 
         if cur == '@' {
-            println!("We have reached the end");
+            //println!("We have reached the end");
             break;
         }
-        
-        if cur != ' '{
-            print!("{}", cur);
+
+        if (pc.string_mode) & (cur != '"') {
+            stack.push(cur);
+            pc.mv_cursor(); //skip to the next iteration
+            continue;
         }
+
+
+        
+        //if cur != ' '{
+            //println!("{}", cur);
+        //}
 
         //Directional stuff
         if cur == 'v'{
@@ -135,7 +148,29 @@ fn main() {
         else if cur == '^' {
             pc.direction = Direction::Up;
         }
+        else if cur == '_' {
+            let result = pop(&mut stack); 
+            if result == '0' {
+               pc.direction = Direction::Right; 
+            } else {
+                pc.direction = Direction::Left;
+            }
+        }
+        else if cur == '|'{
 
+            let result = pop(&mut stack);
+            
+            if result == '0' {
+                pc.direction = Direction::Down;
+            } else {
+                pc.direction = Direction::Up;
+            }
+
+        }
+        
+        if cur == '"' {
+            pc.string_mode  = !pc.string_mode;
+        }
 
 
 
@@ -150,10 +185,32 @@ fn main() {
             //    None => stack.push(0)
             //}
         }
+        if cur == ',' {
+            print!("{}",pop(&mut stack));
+        }
+        if cur == ':' {
+            stack.push(stack[stack.len() - 1])
+        }
+        if cur == '/' {
+            let len = stack.len();
+            let temp:char = stack[len - 1];
+            stack[len - 1] = stack[len - 2];
+            stack[len - 2] = temp;
+        }
+        if cur == '$'{
+            stack.pop();
+        }
+
+
+
+
+        if cur == '#' {
+            pc.mv_cursor();
+        }
        
 
         
-        println!("{:?}",stack);
+        //println!("{:?}",stack);
         pc.mv_cursor();
     }   
 
