@@ -16,11 +16,11 @@ enum Direction {
 
 
 
-fn pop(stack:&mut Vec<char>) -> char {
+fn pop(stack:&mut Vec<u8>) -> u8 {
     let result = stack.pop();
     match result {
         Some(c) => c,
-        None => '0'
+        None => 0
     }
 }
 
@@ -113,7 +113,7 @@ fn main() {
 
 
 
-    let mut stack: Vec<char> = Vec::new();
+    let mut stack: Vec<u8> = Vec::new();
 
     loop {
         let cur: char = playing_field[pc.y][pc.x];
@@ -124,7 +124,7 @@ fn main() {
         }
 
         if (pc.string_mode) & (cur != '"') {
-            stack.push(cur);
+            stack.push(cur as u8);
             pc.mv_cursor(); //skip to the next iteration
             continue;
         }
@@ -150,7 +150,7 @@ fn main() {
         }
         else if cur == '_' {
             let result = pop(&mut stack); 
-            if result == '0' {
+            if result == 0 {
                pc.direction = Direction::Right; 
             } else {
                 pc.direction = Direction::Left;
@@ -160,7 +160,7 @@ fn main() {
 
             let result = pop(&mut stack);
             
-            if result == '0' {
+            if result == 0 {
                 pc.direction = Direction::Down;
             } else {
                 pc.direction = Direction::Up;
@@ -175,7 +175,7 @@ fn main() {
 
 
         if cur.is_ascii_digit() {
-            stack.push(cur);
+            stack.push(cur as u8);
 
 
 
@@ -186,14 +186,14 @@ fn main() {
             //}
         }
         if cur == ',' {
-            print!("{}",pop(&mut stack));
+            print!("{}",pop(&mut stack) as char);
         }
         if cur == ':' {
             stack.push(stack[stack.len() - 1])
         }
-        if cur == '/' {
+        if cur == '\\' {
             let len = stack.len();
-            let temp:char = stack[len - 1];
+            let temp:u8 = stack[len - 1];
             stack[len - 1] = stack[len - 2];
             stack[len - 2] = temp;
         }
@@ -206,6 +206,30 @@ fn main() {
 
         if cur == '#' {
             pc.mv_cursor();
+        }
+        if cur == '+'{
+            let a:u8 = pop(&mut stack);
+            let b:u8 = pop(&mut stack);
+            stack.push(a+b);
+        }
+        if cur == '-'{
+            let a:u8 = pop(&mut stack);
+            let b:u8 = pop(&mut stack);
+            stack.push(b-a);
+        }
+        if cur == '*'{
+            let a:u8 = pop(&mut stack);
+            let b:u8 = pop(&mut stack);
+            stack.push(a*b);
+        }
+        if cur == '/'{
+            let a:u8 = pop(&mut stack);
+            let b:u8 = pop(&mut stack);
+            if a!=0{
+                stack.push(b/a);
+            } else {
+                stack.push(0);
+            }
         }
        
 
